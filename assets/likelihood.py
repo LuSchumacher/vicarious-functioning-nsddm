@@ -43,17 +43,16 @@ def _sample_diffusion_trial(v, a, bias, tau,  dt=0.001, s=1.0, max_iter=1e5):
     resp = 0 if x >= 0 else 1
     return np.array([rt, resp], dtype=np.float32)
 
-@njit
-def sample_non_stationary_diffusion_process(theta_t, context, dt=0.001, s=1.0, max_iter=1e5):
+# @njit
+def sample_non_stationary_diffusion_process(params, context, dt=0.001, s=1.0, max_iter=1e5):
     """Generates a single simulation from a non-stationary diffusion decision process.
 
     Parameters:
     -----------
-    theta_t  : np.ndarray of shape (num_steps, 6)
-        The trajectory of the 5 latent DDM parameters, v, a, bias, tau_1, tau_2, tau_3.
-    context  : np.ndarray of shape (num_steps, 2)
-        The experimental context that determines if the drift should be flipped and the bias inversed
-        and which non-decision time, tau_1, tau_2, or tau_3, to use.
+    params  : list, length 2
+        The trajectory of the 3 local paramters theta_t and the shared parameters gamma
+    context  : np.ndarray of shape (num_steps, 3)
+        The experimental context.
     dt       : float, optional, default: 0.001
         Time resolution of the process. Default corresponds to
         a precision of 1 millisecond.
@@ -68,19 +67,21 @@ def sample_non_stationary_diffusion_process(theta_t, context, dt=0.001, s=1.0, m
     data : np.array of shape (num_steps, 2)
         Response time and choice samples from the random walk diffusion decision process.
     """
-    taus = theta_t[:, -3:]
+    theta_t = params[0]
+    gamma = params[1]
     num_steps = theta_t.shape[0]
     data = np.zeros((num_steps, 2))
     for t in range(num_steps):
-        drift = theta_t[t, 0] + theta_t[t, 1] * context[t, 2]
+        drift = gamma[0] + theta_t[t, 0] * context[t, 2]
+        tau = theta_t[t, 2] + gamma[1] * context[t, 1]
         if context[t, 0] == 1:
             data[t] = _sample_diffusion_trial(
-                drift, theta_t[t, 2], theta_t[t, 3], taus[t, int(context[t, 1])],
+                drift, theta_t[t, 1], gamma[2], tau,
                 dt=dt, s=s, max_iter=max_iter
             )
         else:
             data[t] = _sample_diffusion_trial(
-                -drift, theta_t[t, 2], theta_t[t, 3], taus[t, int(context[t, 1])],
+                -drift, theta_t[t, 1], gamma[2], tau,
                 dt=dt, s=s, max_iter=max_iter
             )
     return data

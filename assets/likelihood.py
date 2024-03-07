@@ -1,7 +1,7 @@
 import numpy as np
 from numba import njit
 
-@njit
+# @njit
 def _sample_diffusion_trial(v, a, bias, tau,  dt=0.001, s=1.0, max_iter=1e5):
     """Generates a single response time from a diffusion decision process.
 
@@ -40,7 +40,7 @@ def _sample_diffusion_trial(v, a, bias, tau,  dt=0.001, s=1.0, max_iter=1e5):
         x += v*dt + c * np.random.randn()
         n_iter += 1
     rt = n_iter * dt + tau
-    resp = 0 if x >= 0 else 1
+    resp = 0 if x <= 0 else 1
     return np.array([rt, resp], dtype=np.float32)
 
 # @njit

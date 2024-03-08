@@ -18,10 +18,13 @@ approximator_settings = {
 }
 
 default_prior_settings = {
-    # v0, bv, a, beta, tau
-    "scale_loc": (0.0, 0.0, 0.0, 0.0, 0.0),
-    "scale_scale": (0.1, 0.1, 0.1, 0.05, 0.05),
+    # v0, b_tau, beta
+    "gamma_shape_1": (0.0, 0.0, 25),
+    "gamma_shape_2": (1.0, 0.2, 25),
+    # sigma_b_v, sigma_a, sigma_tau_0
+    "eta_shape_1": (0.0, 0.0, 0.0),
+    "eta_shape_2": (0.1, 0.1, 0.05),
 }
 
-default_lower_bounds = (0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-default_upper_bounds = (6.0, 4.0, 4.0, 1.0, 2.0, 2.0, 2.0)
+default_lower_bounds = (0.0, 0.0, 0.0)
+default_upper_bounds = (6.0, 6.0, 2.0)

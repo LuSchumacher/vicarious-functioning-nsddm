@@ -1,7 +1,7 @@
 import numpy as np
 from numba import njit
 
-# @njit
+@njit
 def _sample_diffusion_trial(v, a, bias, tau,  dt=0.001, s=1.0, max_iter=1e5):
     """Generates a single response time from a diffusion decision process.
 
